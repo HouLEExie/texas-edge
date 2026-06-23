@@ -7,10 +7,12 @@ import streamlit as st
 from cards import (
     RANKS,
     SUITS,
+    SUIT_SYMBOLS,
     SUIT_NAMES_CN,
     card_color,
     format_card,
     format_cards,
+    rank_label,
     stage_name,
 )
 from poker_engine import EquityResult, run_monte_carlo, validate_simulation_inputs
@@ -37,6 +39,10 @@ def init_state() -> None:
         "last_result": None,
         "last_record": None,
         "history": [],
+        "picker_open": False,
+        "wheel_suit": "S",
+        "wheel_rank": "A",
+        "_wheel_needs_sync": True,
     }
     for key, value in defaults.items():
         if key not in st.session_state:
@@ -57,9 +63,20 @@ def current_active_card() -> str | None:
     return st.session_state.hero_cards[index] if area == "hero" else st.session_state.board_cards[index]
 
 
+def sync_wheel_to_active_card() -> None:
+    card = current_active_card()
+    if card:
+        st.session_state.wheel_rank = card[0]
+        st.session_state.wheel_suit = card[1]
+    else:
+        st.session_state.wheel_rank = "A"
+        st.session_state.wheel_suit = "S"
+
+
 def set_active_slot(area: str, index: int) -> None:
     st.session_state.active_area = area
     st.session_state.active_index = index
+    st.session_state._wheel_needs_sync = True
 
 
 def next_open_slot() -> None:
@@ -89,6 +106,18 @@ def place_card(card: str) -> None:
     next_open_slot()
 
 
+def assign_card_from_wheel(card: str) -> None:
+    area = st.session_state.active_area
+    index = st.session_state.active_index
+    target = st.session_state.hero_cards if area == "hero" else st.session_state.board_cards
+
+    if card in selected_cards() and target[index] != card:
+        return
+
+    target[index] = card
+    next_open_slot()
+
+
 def clear_current_slot() -> None:
     area = st.session_state.active_area
     index = st.session_state.active_index
@@ -96,6 +125,7 @@ def clear_current_slot() -> None:
         st.session_state.hero_cards[index] = None
     else:
         st.session_state.board_cards[index] = None
+    st.session_state._wheel_needs_sync = True
 
 
 def reset_selection() -> None:
@@ -105,6 +135,7 @@ def reset_selection() -> None:
     st.session_state.active_index = 0
     st.session_state.last_result = None
     st.session_state.last_record = None
+    st.session_state._wheel_needs_sync = True
 
 
 def player_label(player_count: int) -> str:
@@ -146,14 +177,18 @@ def slot_html(card: str | None, label: str, active: bool) -> str:
     """
 
 
+def slot_button_label(card: str | None, label: str, active: bool) -> str:
+    prefix = "✓ " if active else ""
+    return f"{prefix}{format_card(card)} · {label}"
+
+
 def render_hero_slots() -> None:
     st.markdown('<div class="edge-section-title">我的手牌</div>', unsafe_allow_html=True)
     cols = st.columns(2, gap="small")
     for index, col in enumerate(cols):
         with col:
             active = st.session_state.active_area == "hero" and st.session_state.active_index == index
-            st.markdown(slot_html(st.session_state.hero_cards[index], f"Hero {index + 1}", active), unsafe_allow_html=True)
-            label = "当前选择" if active else "选择此槽"
+            label = slot_button_label(st.session_state.hero_cards[index], f"Hero {index + 1}", active)
             if st.button(label, key=f"hero_slot_{index}", use_container_width=True):
                 set_active_slot("hero", index)
 
@@ -167,8 +202,7 @@ def render_board_slots() -> None:
     for index, col in enumerate(cols):
         with col:
             active = st.session_state.active_area == "board" and st.session_state.active_index == index
-            st.markdown(slot_html(st.session_state.board_cards[index], labels[index], active), unsafe_allow_html=True)
-            label = "当前" if active else "选择"
+            label = slot_button_label(st.session_state.board_cards[index], labels[index], active)
             if st.button(label, key=f"board_slot_{index}", use_container_width=True):
                 set_active_slot("board", index)
 
@@ -229,38 +263,95 @@ def render_simulation_controls() -> None:
 def render_card_picker() -> None:
     st.markdown('<div class="edge-section-title">牌面选择</div>', unsafe_allow_html=True)
     active_name = "手牌" if st.session_state.active_area == "hero" else "公共牌"
-    st.caption(f"当前槽位：{active_name} {st.session_state.active_index + 1}。点击已选中的同一张牌可清空该槽位。")
+    st.markdown(
+        f'<span class="edge-pill">当前：{active_name} {st.session_state.active_index + 1}</span>',
+        unsafe_allow_html=True,
+    )
+
+    render_wheel_picker()
+
+    control_cols = st.columns(3, gap="small")
+    with control_cols[0]:
+        if st.button("全部牌面" if not st.session_state.picker_open else "收起牌面", key="toggle_picker", use_container_width=True):
+            st.session_state.picker_open = not st.session_state.picker_open
+    with control_cols[1]:
+        st.button("清空当前", key="clear_slot", use_container_width=True, on_click=clear_current_slot)
+    with control_cols[2]:
+        st.button("重新选择", key="reset_top", use_container_width=True, on_click=reset_selection)
+
+    if not st.session_state.picker_open:
+        return
 
     current_card = current_active_card()
     occupied = set(selected_cards())
-    for suit_code in SUITS:
-        st.markdown(f"**{SUIT_NAMES_CN[suit_code]}**")
-        for chunk_index, rank_chunk in enumerate((RANKS[:7], RANKS[7:])):
-            cols = st.columns(len(rank_chunk), gap="small")
-            for rank_code, col in zip(rank_chunk, cols):
-                card = f"{rank_code}{suit_code}"
-                is_current = current_card == card
-                is_occupied = card in occupied
-                disabled = is_occupied and not is_current
-                label = format_card(card)
-                if is_current:
-                    label = f"✓ {label}"
-                elif is_occupied:
-                    label = f"· {label}"
-                with col:
-                    if st.button(
-                        label,
-                        key=f"card_{card}_{chunk_index}",
-                        disabled=disabled,
-                        use_container_width=True,
-                    ):
-                        place_card(card)
+    with st.container():
+        for suit_code in SUITS:
+            st.markdown(f"**{SUIT_NAMES_CN[suit_code]}**")
+            for chunk_index, rank_chunk in enumerate((RANKS[:7], RANKS[7:])):
+                cols = st.columns(len(rank_chunk), gap="small")
+                for rank_code, col in zip(rank_chunk, cols):
+                    card = f"{rank_code}{suit_code}"
+                    is_current = current_card == card
+                    is_occupied = card in occupied
+                    disabled = is_occupied and not is_current
+                    label = format_card(card)
+                    if is_current:
+                        label = f"✓ {label}"
+                    elif is_occupied:
+                        label = f"· {label}"
+                    with col:
+                        if st.button(
+                            label,
+                            key=f"card_{card}_{chunk_index}",
+                            disabled=disabled,
+                            use_container_width=True,
+                        ):
+                            place_card(card)
 
-    control_cols = st.columns(2, gap="small")
-    with control_cols[0]:
-        st.button("清空当前槽位", key="clear_slot", use_container_width=True, on_click=clear_current_slot)
-    with control_cols[1]:
-        st.button("重新选择", key="reset_top", use_container_width=True, on_click=reset_selection)
+
+def suit_option_label(suit_code: str) -> str:
+    return f"{SUIT_SYMBOLS[suit_code]} {SUIT_NAMES_CN[suit_code]}"
+
+
+def render_wheel_picker() -> None:
+    if st.session_state.get("_wheel_needs_sync", True):
+        sync_wheel_to_active_card()
+        st.session_state._wheel_needs_sync = False
+
+    wheel_cols = st.columns(2, gap="small")
+    with wheel_cols[0]:
+        st.selectbox(
+            "花色",
+            SUITS,
+            key="wheel_suit",
+            format_func=suit_option_label,
+        )
+    with wheel_cols[1]:
+        st.selectbox(
+            "点数",
+            RANKS,
+            key="wheel_rank",
+            format_func=rank_label,
+        )
+
+    candidate = f"{st.session_state.wheel_rank}{st.session_state.wheel_suit}"
+    current_card = current_active_card()
+    occupied_elsewhere = candidate in selected_cards() and candidate != current_card
+    action_cols = st.columns([2, 1], gap="small")
+    with action_cols[0]:
+        if st.button(
+            f"放入当前牌面：{format_card(candidate)}",
+            key="wheel_apply",
+            disabled=occupied_elsewhere,
+            use_container_width=True,
+        ):
+            assign_card_from_wheel(candidate)
+            st.rerun()
+    with action_cols[1]:
+        st.button("清空", key="wheel_clear", use_container_width=True, on_click=clear_current_slot)
+
+    if occupied_elsewhere:
+        st.warning("这张牌已经被占用，请换一张。")
 
 
 def build_record(result: EquityResult) -> dict[str, Any]:

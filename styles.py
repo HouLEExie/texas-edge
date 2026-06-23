@@ -39,7 +39,7 @@ footer {
 
 .block-container {
   max-width: 760px;
-  padding: 1.25rem 0.85rem 5rem;
+  padding: 0.8rem 0.72rem 2.5rem;
 }
 
 h1, h2, h3, p, label, span, div {
@@ -47,19 +47,19 @@ h1, h2, h3, p, label, span, div {
 }
 
 .edge-hero {
-  padding: 1.1rem 0 0.75rem;
+  padding: 0.45rem 0 0.35rem;
 }
 
 .edge-kicker {
   color: var(--edge-gold);
-  font-size: 0.78rem;
+  font-size: 0.68rem;
   font-weight: 700;
   text-transform: uppercase;
 }
 
 .edge-title {
   color: var(--edge-text);
-  font-size: clamp(2rem, 9vw, 3.1rem);
+  font-size: clamp(1.55rem, 7vw, 2.45rem);
   line-height: 1.02;
   font-weight: 850;
   margin: 0.15rem 0 0.25rem;
@@ -67,7 +67,7 @@ h1, h2, h3, p, label, span, div {
 
 .edge-subtitle {
   color: var(--edge-muted);
-  font-size: 0.96rem;
+  font-size: 0.82rem;
   margin: 0;
 }
 
@@ -75,10 +75,10 @@ h1, h2, h3, p, label, span, div {
   align-items: center;
   color: var(--edge-text);
   display: flex;
-  font-size: 1rem;
+  font-size: 0.9rem;
   font-weight: 780;
   gap: 0.45rem;
-  margin: 1.05rem 0 0.45rem;
+  margin: 0.58rem 0 0.26rem;
 }
 
 .edge-section-title::before {
@@ -92,7 +92,7 @@ h1, h2, h3, p, label, span, div {
 
 .edge-card-slot {
   align-items: center;
-  aspect-ratio: 0.72;
+  aspect-ratio: 1.65;
   background:
     linear-gradient(180deg, rgba(243, 241, 232, 0.06), rgba(243, 241, 232, 0.02)),
     var(--edge-card);
@@ -102,8 +102,8 @@ h1, h2, h3, p, label, span, div {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  min-height: 96px;
-  padding: 0.65rem 0.35rem;
+  min-height: 68px;
+  padding: 0.35rem 0.25rem;
   text-align: center;
 }
 
@@ -114,7 +114,7 @@ h1, h2, h3, p, label, span, div {
 
 .edge-card-face {
   color: var(--edge-text);
-  font-size: clamp(1.45rem, 8vw, 2.25rem);
+  font-size: clamp(1.15rem, 6vw, 1.75rem);
   font-weight: 850;
   line-height: 1;
 }
@@ -125,8 +125,8 @@ h1, h2, h3, p, label, span, div {
 
 .edge-card-label {
   color: var(--edge-muted);
-  font-size: 0.72rem;
-  margin-top: 0.45rem;
+  font-size: 0.62rem;
+  margin-top: 0.18rem;
 }
 
 .edge-pill {
@@ -135,10 +135,10 @@ h1, h2, h3, p, label, span, div {
   border-radius: 999px;
   color: var(--edge-muted);
   display: inline-flex;
-  font-size: 0.82rem;
+  font-size: 0.74rem;
   font-weight: 650;
-  margin: 0.15rem 0 0.35rem;
-  padding: 0.34rem 0.68rem;
+  margin: 0.08rem 0 0.18rem;
+  padding: 0.24rem 0.52rem;
 }
 
 .edge-panel {
@@ -146,22 +146,22 @@ h1, h2, h3, p, label, span, div {
   border: 1px solid rgba(214, 168, 79, 0.16);
   border-radius: 8px;
   box-shadow: 0 16px 38px rgba(0,0,0,0.25);
-  padding: 0.85rem;
+  padding: 0.58rem;
 }
 
 .edge-result-grid {
   display: grid;
-  gap: 0.65rem;
+  gap: 0.42rem;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  margin-top: 0.5rem;
+  margin-top: 0.32rem;
 }
 
 .edge-metric {
   background: linear-gradient(180deg, rgba(243,241,232,0.055), rgba(243,241,232,0.015));
   border: 1px solid rgba(214,168,79,0.15);
   border-radius: 8px;
-  min-height: 92px;
-  padding: 0.8rem;
+  min-height: 62px;
+  padding: 0.52rem;
 }
 
 .edge-metric.win {
@@ -170,19 +170,19 @@ h1, h2, h3, p, label, span, div {
     #111A16;
   border-color: rgba(29,185,84,0.45);
   grid-column: 1 / -1;
-  min-height: 134px;
+  min-height: 84px;
 }
 
 .edge-metric-label {
   color: var(--edge-muted);
-  font-size: 0.78rem;
+  font-size: 0.68rem;
   font-weight: 760;
   text-transform: uppercase;
 }
 
 .edge-metric-value {
   color: var(--edge-text);
-  font-size: 1.45rem;
+  font-size: 1.05rem;
   font-weight: 850;
   line-height: 1.12;
   margin-top: 0.25rem;
@@ -191,12 +191,12 @@ h1, h2, h3, p, label, span, div {
 
 .edge-metric.win .edge-metric-value {
   color: var(--edge-green);
-  font-size: clamp(3rem, 18vw, 5.2rem);
+  font-size: clamp(2.05rem, 12vw, 3.6rem);
 }
 
 .edge-history-item {
   border-bottom: 1px solid rgba(243,241,232,0.08);
-  padding: 0.75rem 0;
+  padding: 0.52rem 0;
 }
 
 .edge-history-item:last-child {
@@ -210,7 +210,7 @@ h1, h2, h3, p, label, span, div {
 
 .edge-history-bottom {
   color: var(--edge-muted);
-  font-size: 0.82rem;
+  font-size: 0.74rem;
   margin-top: 0.2rem;
 }
 
@@ -219,7 +219,8 @@ h1, h2, h3, p, label, span, div {
   border: 1px solid rgba(214, 168, 79, 0.18);
   border-radius: 8px;
   color: var(--edge-text);
-  min-height: 2.65rem;
+  min-height: 2.12rem;
+  padding: 0.18rem 0.35rem;
   transition: border-color 140ms ease, box-shadow 140ms ease, transform 140ms ease;
 }
 
@@ -238,7 +239,7 @@ h1, h2, h3, p, label, span, div {
   border: 1px solid rgba(29,185,84,0.7);
   color: #06100C;
   font-weight: 850;
-  min-height: 3.25rem;
+  min-height: 2.72rem;
 }
 
 button[disabled] {
@@ -246,7 +247,21 @@ button[disabled] {
 }
 
 div[data-testid="stSlider"] {
-  padding: 0.2rem 0 0.6rem;
+  padding: 0 0 0.25rem;
+}
+
+div[data-testid="stVerticalBlock"] {
+  gap: 0.28rem;
+}
+
+div[data-testid="stHorizontalBlock"] {
+  gap: 0.35rem;
+}
+
+div[data-testid="stExpander"] details {
+  background: rgba(17, 26, 22, 0.72);
+  border-color: rgba(214, 168, 79, 0.16);
+  border-radius: 8px;
 }
 
 div[data-testid="stAlert"] {
@@ -255,16 +270,41 @@ div[data-testid="stAlert"] {
 
 @media (max-width: 520px) {
   .block-container {
-    padding-left: 0.72rem;
-    padding-right: 0.72rem;
+    padding: 0.35rem 0.45rem 1.8rem;
   }
 
   .edge-panel {
-    padding: 0.7rem;
+    padding: 0.48rem;
   }
 
   .edge-card-slot {
-    min-height: 78px;
+    aspect-ratio: 1.8;
+    min-height: 52px;
+  }
+
+  .edge-title {
+    font-size: 1.62rem;
+  }
+
+  .edge-subtitle {
+    font-size: 0.76rem;
+  }
+
+  .stButton > button {
+    min-height: 1.95rem;
+    font-size: 0.78rem;
+  }
+
+  .stButton > button[kind="primary"] {
+    min-height: 2.45rem;
+  }
+
+  .edge-metric {
+    min-height: 54px;
+  }
+
+  .edge-metric.win {
+    min-height: 74px;
   }
 }
 """
